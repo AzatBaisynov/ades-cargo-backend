@@ -11,15 +11,15 @@ import { getTypeOrmConfig } from './config/typeorm.config';
   imports: [
     ProductModule,
     ConfigModule.forRoot({
-      isGlobal:true,
+      isGlobal: true,
       load: [databaseConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: getTypeOrmConfig, 
+      useFactory: getTypeOrmConfig,
     }),
   ],
-  controllers: [AppController,],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
