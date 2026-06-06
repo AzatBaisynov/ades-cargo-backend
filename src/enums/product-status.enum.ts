@@ -3,4 +3,5 @@ export enum ProductStatus {
   IN_TRANSIT = 'В пути',
   ARRIVED_BISHKEK = 'Прибыл в Бишкек',
   ISSUED = 'Выдан',
+  PENDING = 'default',
 }
