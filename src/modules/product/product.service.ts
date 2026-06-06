@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductEntity } from './entities/product.entity';
-import { ImportDTO } from '@/dto/import.dto';
 import { ProductStatus } from '@/enums/product-status.enum';
-import { Injectable } from '@nestjs/common';
+import { ImportDTO } from '@/dto/import.dto';
 
 @Injectable()
 export class ProductService {

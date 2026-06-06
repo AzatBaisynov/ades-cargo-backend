@@ -6,7 +6,7 @@ import { ImportDTO } from '@/dto/import.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   @Post('import-china')
-  @HttpCode(HttpStatus.OK) // Возвращаем 200, как ждет фронтенд
+  @HttpCode(HttpStatus.OK)
   async importChina(@Body() dto: ImportDTO[]) {
     return await this.productService.saveAndChangeStatus(dto);
   }
