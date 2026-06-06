@@ -22,7 +22,7 @@ export class ProductEntity {
     enum: ProductStatus,
     default: ProductStatus.PENDING,
   })
-  status?: ProductStatus;
+  status!: ProductStatus;
 
   @CreateDateColumn()
   createdAt!: Date;

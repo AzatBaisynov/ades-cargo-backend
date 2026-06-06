@@ -1,6 +1,14 @@
-import { Controller, Body, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Patch,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ImportDTO } from '@/dto/import.dto';
+import { UpdateStatusDto } from '@/dto/product-update.dto';
 
 @Controller('product')
 export class ProductController {
@@ -9,5 +17,9 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async importChina(@Body() dto: ImportDTO[]) {
     return await this.productService.saveAndChangeStatus(dto);
+  }
+  @Patch('status')
+  async updateStatus(@Body() dto: UpdateStatusDto) {
+    return this.productService.updateStatus(dto);
   }
 }
