@@ -12,14 +12,17 @@ export class ProductEntity {
   id!: string;
 
   @Column()
-  user_code?: string;
+  customer_code!: string;
+
+  @Column()
+  product_code!: string;
 
   @Column({
     type: 'enum',
     enum: ProductStatus,
     default: ProductStatus.PENDING,
   })
-  status?: ProductStatus;
+  status!: ProductStatus;
 
   @CreateDateColumn()
   createdAt!: Date;
