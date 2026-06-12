@@ -6,10 +6,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
+import { ExcelModule } from './modules/excel/excel.module';
 
 @Module({
   imports: [
     ProductModule,
+    ExcelModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig],
