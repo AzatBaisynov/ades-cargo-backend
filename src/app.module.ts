@@ -7,11 +7,13 @@ import databaseConfig from './config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { ExcelModule } from './modules/excel/excel.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ProductModule,
     ExcelModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig],
