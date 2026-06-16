@@ -1,4 +1,4 @@
-// export interface ExcelCode {
-//   client_code: string;
-//   product_code: string;
-// }
+export interface ExcelCode {
+  customer_code: string;
+  product_code: string;
+}
