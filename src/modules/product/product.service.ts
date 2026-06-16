@@ -51,4 +51,19 @@ export class ProductService {
       message: `Статус успешно обновлен для ${product_code.length} товаров.`,
     };
   }
+
+  async findClientProductForIssue(searchValue: string) {
+    if (!searchValue) {
+      return [];
+    }
+    return await this.productRepository.find({
+      where: [
+        { customer_code: searchValue, status: ProductStatus.ARRIVED_BISHKEK },
+        { product_code: searchValue, status: ProductStatus.ARRIVED_BISHKEK },
+      ],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
 }
