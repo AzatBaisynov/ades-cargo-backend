@@ -29,7 +29,7 @@ export class ExcelService {
 
       if (clientCode && productCode) {
         result.push({
-          client_code: clientCode,
+          customer_code: clientCode,
           product_code: productCode,
         });
       }
