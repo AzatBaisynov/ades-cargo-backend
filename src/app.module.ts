@@ -8,7 +8,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ExcelModule } from './modules/excel/excel.module';
-
 @Module({
   imports: [
     ProductModule,
