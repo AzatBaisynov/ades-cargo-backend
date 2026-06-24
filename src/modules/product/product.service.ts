@@ -19,8 +19,8 @@ export class ProductService {
     }
     const productsToSave = data.map((item) => {
       const product = new ProductEntity();
-      product.product_code = item.product_code;
-      product.customer_code = item.customer_code;
+      product.product_code = item.product_code.toUpperCase();
+      product.customer_code = item.customer_code.toUpperCase();
       product.status = ProductStatus.IN_CHINA;
       return product;
     });
