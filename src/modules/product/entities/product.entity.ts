@@ -23,6 +23,8 @@ export class ProductEntity {
     default: ProductStatus.PENDING,
   })
   status!: ProductStatus;
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  weight_Kg!: number | null;
 
   @CreateDateColumn()
   createdAt!: Date;
