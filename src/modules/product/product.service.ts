@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { ProductEntity } from './entities/product.entity';
@@ -19,8 +23,8 @@ export class ProductService {
     }
     const productsToSave = data.map((item) => {
       const product = new ProductEntity();
-      product.product_code = item.product_code.toUpperCase();
-      product.customer_code = item.customer_code.toUpperCase();
+      product.product_code = item.product_code.trim().toUpperCase();
+      product.customer_code = item.customer_code.trim().toUpperCase();
       product.status = ProductStatus.IN_CHINA;
       return product;
     });
@@ -46,6 +50,15 @@ export class ProductService {
       { id: In(product_code) },
       { status: status },
     );
+    const productsToSave = findproducts.map((product) => {
+      product.status = status;
+      if (status === ProductStatus.ISSUED) {
+        // TODO:   const calculatedPrice = Number(product.weight) * Number(product.tariff);
+        // product. = calculatedPrice;
+      }
+      return product;
+    });
+    await this.productRepository.save(productsToSave);
     return {
       success: true,
       message: `Статус успешно обновлен для ${product_code.length} товаров.`,
@@ -54,16 +67,34 @@ export class ProductService {
 
   async findClientProductForIssue(searchValue: string) {
     if (!searchValue) {
-      return [];
+      throw new BadRequestException(
+        'Товары не найдены. Введите код клиента для поиска.',
+      );
     }
-    return await this.productRepository.find({
+    const cleanSearch = searchValue.trim().toUpperCase();
+    const products = await this.productRepository.find({
       where: [
         { customer_code: searchValue, status: ProductStatus.ARRIVED_BISHKEK },
         { product_code: searchValue, status: ProductStatus.ARRIVED_BISHKEK },
       ],
       order: {
+        status: 'DESC',
         createdAt: 'DESC',
       },
     });
+    if (products.length > 0) {
+      return products;
+    }
+    const anyProductExist = await this.productRepository.findOne({
+      where: [{ customer_code: cleanSearch }, { product_code: cleanSearch }],
+    });
+    if (anyProductExist) {
+      throw new BadRequestException(
+        `Товары найдены, но они не готовы к выдаче. Текущий статус: ${anyProductExist.status}`,
+      );
+    }
+    throw new NotFoundException(
+      `Товары с кодом "${cleanSearch}" не найден на складе.`,
+    );
   }
 }
