@@ -17,5 +17,5 @@ export class CreateAcceptanceDto {
   @IsOptional()
   @IsNumber({}, { message: 'вес должен быть числом' })
   @IsPositive({ message: 'вес должен быть положительным числом' })
-  weight_kg?: number;
+  weight_Kg?: number;
 }

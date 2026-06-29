@@ -19,7 +19,6 @@ export class AcceptanceService {
         customer_code: dto.customer_code,
       },
     });
-
     if (!product) {
       product = this.productRepository.create({
         customer_code: dto.customer_code,
