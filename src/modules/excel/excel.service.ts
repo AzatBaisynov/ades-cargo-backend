@@ -24,7 +24,6 @@ export class ExcelService {
       }
 
       const clientCode = row.getCell(1).text;
-
       const productCode = row.getCell(2).text;
 
       if (clientCode && productCode) {
