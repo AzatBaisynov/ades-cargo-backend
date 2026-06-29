@@ -24,17 +24,20 @@ export class AcceptanceService {
       product = this.productRepository.create({
         customer_code: dto.customer_code,
         product_code: dto.product_code,
-        weight_Kg: dto.weight_kg,
+        weight_Kg: dto.weight_Kg,
+        status: ProductStatus.ARRIVED_BISHKEK,
       });
-      await this.productRepository.save(product);
+    } else {
+      product.weight_Kg = dto.weight_Kg ?? product.weight_Kg;
+      product.status = ProductStatus.ARRIVED_BISHKEK;
     }
-    product.status = ProductStatus.ARRIVED_BISHKEK;
     await this.productRepository.save(product);
 
     const acceptance = this.productRepository.create({
       customer_code: dto.customer_code,
       product_code: dto.product_code,
-      weight_Kg: dto.weight_kg,
+      weight_Kg: dto.weight_Kg,
+      status: ProductStatus.ARRIVED_BISHKEK,
     });
     return await this.productRepository.save(acceptance);
   }
