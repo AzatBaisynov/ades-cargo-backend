@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductEntity } from '../product/entities/product.entity';
-import { CreateAcceptanceDto } from '../../dto/acceptance.dto';
 import { ProductStatus } from '@/enums/product-status.enum';
+import { CreateAcceptanceListDto } from '@/dto/acceptance-list.dto';
 
 @Injectable()
 export class AcceptanceService {
@@ -12,25 +12,29 @@ export class AcceptanceService {
     private readonly productRepository: Repository<ProductEntity>,
   ) {}
 
-  async create(dto: CreateAcceptanceDto) {
-    let product = await this.productRepository.findOne({
-      where: {
-        product_code: dto.product_code,
-        customer_code: dto.customer_code,
-      },
-    });
-    if (!product) {
-      product = this.productRepository.create({
-        customer_code: dto.customer_code,
-        product_code: dto.product_code,
-        weight_Kg: dto.weight_Kg,
-        status: ProductStatus.ARRIVED_BISHKEK,
+  async create(dto: CreateAcceptanceListDto) {
+    const savedProducts: ProductEntity[] = [];
+    for (const item of dto.items) {
+      let product = await this.productRepository.findOne({
+        where: {
+          product_code: item.product_code,
+          customer_code: item.customer_code,
+        },
       });
-    } else {
-      product.weight_Kg = dto.weight_Kg ?? product.weight_Kg;
-      product.status = ProductStatus.ARRIVED_BISHKEK;
+      if (!product) {
+        product = this.productRepository.create({
+          customer_code: item.customer_code,
+          product_code: item.product_code,
+          weight_Kg: item.weight_Kg,
+          status: ProductStatus.ARRIVED_BISHKEK,
+        });
+      } else {
+        product.weight_Kg = item.weight_Kg ?? product.weight_Kg;
+        product.status = ProductStatus.ARRIVED_BISHKEK;
+      }
+      const savedProduct = await this.productRepository.save(product);
+      savedProducts.push(savedProduct);
     }
-    const savedProduct = await this.productRepository.save(product);
-    return savedProduct;
+    return savedProducts;
   }
 }

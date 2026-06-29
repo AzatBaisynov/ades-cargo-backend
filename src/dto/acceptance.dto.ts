@@ -1,9 +1,12 @@
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export class CreateAcceptanceDto {
@@ -18,4 +21,10 @@ export class CreateAcceptanceDto {
   @IsNumber({}, { message: 'вес должен быть числом' })
   @IsPositive({ message: 'вес должен быть положительным числом' })
   weight_Kg?: number;
+}
+export class CreateAcceptanceListDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateAcceptanceDto)
+  items!: CreateAcceptanceDto[];
 }

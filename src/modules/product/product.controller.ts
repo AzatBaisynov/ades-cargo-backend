@@ -12,7 +12,7 @@ import { ProductService } from './product.service';
 import { ImportDTO } from '@/dto/import.dto';
 import { UpdateStatusDto } from '@/dto/product-update.dto';
 import { AcceptanceService } from '../acceptance/acceptance.service';
-import { CreateAcceptanceDto } from '@/dto/acceptance.dto';
+import { CreateAcceptanceListDto } from '@/dto/acceptance-list.dto';
 
 @Controller('product')
 export class ProductController {
@@ -33,7 +33,7 @@ export class ProductController {
   }
   @Post('acceptance')
   @HttpCode(HttpStatus.OK)
-  async createAcceptance(@Body() dto: CreateAcceptanceDto) {
+  async createAcceptance(@Body() dto: CreateAcceptanceListDto) {
     return await this.acceptanceService.create(dto);
   }
   @Patch('status')
