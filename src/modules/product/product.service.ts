@@ -74,8 +74,8 @@ export class ProductService {
     const cleanSearch = searchValue.trim().toUpperCase();
     const products = await this.productRepository.find({
       where: [
-        { customer_code: searchValue, status: ProductStatus.ARRIVED_BISHKEK },
-        { product_code: searchValue, status: ProductStatus.ARRIVED_BISHKEK },
+        { customer_code: cleanSearch, status: ProductStatus.ARRIVED_BISHKEK },
+        { product_code: cleanSearch, status: ProductStatus.ARRIVED_BISHKEK },
       ],
       order: {
         status: 'DESC',

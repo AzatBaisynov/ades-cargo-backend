@@ -67,4 +67,33 @@ export class ProductScheduler {
       );
     }
   }
+
+  @Cron('0 0 */16 * *')
+  async handleProductClean() {
+    this.logger.log(
+      '=== [КРОН] Запуск плановой очистки товаров с статусом "Прибыл в Бишкек" ===',
+    );
+    await this.cleanProducts();
+  }
+  private async cleanProducts() {
+    try {
+      const fifteensDayAgo = new Date();
+      fifteensDayAgo.setDate(fifteensDayAgo.getDate() - 15);
+      const deleteProduct = await this.productRepository
+        .createQueryBuilder()
+        .delete()
+        .from(ProductEntity)
+        .where('status = :status', { status: ProductStatus.ARRIVED_BISHKEK })
+        .andWhere('createdAt < :date', { date: fifteensDayAgo })
+        .execute();
+      this.logger.log(
+        `[КРОН] Из БД успешно удалено ${deleteProduct.affected} товаров старше 15 дней. `,
+      );
+    } catch (err) {
+      this.logger.log(
+        'Ошибка при автоматическом удалении старых товаров:',
+        err,
+      );
+    }
+  }
 }
