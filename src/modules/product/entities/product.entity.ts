@@ -4,9 +4,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('products')
+@Index(['customer_code', 'product_code'], { unique: true })
 export class ProductEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
