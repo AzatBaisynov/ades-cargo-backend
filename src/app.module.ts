@@ -8,9 +8,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { ExcelModule } from './modules/excel/excel.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 @Module({
   imports: [
     ProductModule,
+    AuthModule,
+    UserModule,
     ExcelModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
