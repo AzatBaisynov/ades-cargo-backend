@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductEntity } from '@/modules/product/entities/product.entity';
+import { ProductEntity } from '@/modules/product/product.entity';
 import { ProductStatus } from '@/enums/product-status.enum';
 
 @Injectable()
