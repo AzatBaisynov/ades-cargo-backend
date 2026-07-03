@@ -19,11 +19,23 @@ export class AuthService {
 
     if (existUser) {
       throw new HttpException(
-        { message: 'User already exist' },
+        {
+          message: `Пользователь с именем ${userCreateDTO.user_name} уже существует`,
+        },
         HttpStatus.BAD_REQUEST,
       );
     }
-
+    const existEmail = await this.userService.findUserByUseremail(
+      userCreateDTO.user_email,
+    );
+    if (existEmail) {
+      throw new HttpException(
+        {
+          message: `Эта почта ${userCreateDTO.user_email} уже существует`,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const hashedPassword = await bcrypt.hash(userCreateDTO.user_password, 10);
 
     const user = await this.userService.create({
@@ -41,7 +53,7 @@ export class AuthService {
 
     if (!existUser) {
       throw new HttpException(
-        { message: "User doesn't exist" },
+        { message: 'Пользователь с таким именем не существует' },
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -53,7 +65,7 @@ export class AuthService {
 
     if (!isMatch) {
       throw new HttpException(
-        { message: 'Wrong password!' },
+        { message: 'Неправильный пароль!' },
         HttpStatus.FORBIDDEN,
       );
     }

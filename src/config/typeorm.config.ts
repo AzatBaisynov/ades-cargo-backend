@@ -1,5 +1,3 @@
-import { UserEntity } from '@/modules/user/user.entity';
-import { ProductEntity } from '@/modules/product/product.entity';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
@@ -13,6 +11,5 @@ export const getTypeOrmConfig = (
   password: configService.get<string>('database.password'),
   database: configService.get<string>('database.database'),
   autoLoadEntities: true,
-  entities: [ProductEntity, UserEntity],
   synchronize: true,
 });

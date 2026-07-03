@@ -12,11 +12,11 @@ export class UserEntity {
   user_id!: string;
   @Column()
   fullname!: string;
-  @Column()
+  @Column({ unique: true })
   user_name!: string;
-  @Column()
+  @Column({ select: false })
   user_password!: string;
-  @Column()
+  @Column({ unique: true })
   user_email!: string;
   @CreateDateColumn()
   createdAt!: Date;
