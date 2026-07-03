@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { ProductEntity } from '../product/entities/product.entity';
@@ -29,34 +29,38 @@ export class AcceptanceService {
         ),
       );
       const duplicates: string[] = [];
+      const products: {
+        customer_code: string;
+        product_code: string;
+        weight_Kg?: number;
+        status: ProductStatus;
+      }[] = [];
       dto.items.forEach((item) => {
         const code = `${item.product_code}:${item.customer_code}`;
         if (searchProductsSet.has(code)) {
           duplicates.push(code);
-        } else {
-          searchProductsSet.add(code);
+          return;
         }
-      });
-      if (duplicates.length > 0) {
-        throw new BadRequestException({
-          message: 'Найдены дубликаты данных во втором файле!',
-          duplicates: [...new Set(duplicates)],
+        searchProductsSet.add(code);
+        products.push({
+          customer_code: item.customer_code,
+          product_code: item.product_code,
+          weight_Kg: item.weight_Kg,
+          status: ProductStatus.ARRIVED_BISHKEK,
         });
-      }
-      const products = dto.items.map((item) => ({
-        customer_code: item.customer_code,
-        product_code: item.product_code,
-        weight_Kg: item.weight_Kg,
-        status: ProductStatus.ARRIVED_BISHKEK,
-      }));
+      });
       if (products.length > 0) {
-        await queryRunner.manager.insert(ProductEntity, products);
+        await queryRunner.manager.upsert(ProductEntity, products, [
+          'product_code',
+          'customer_code',
+        ]);
       }
       await queryRunner.commitTransaction();
 
       return {
         saved: products.length,
         skipped: dto.items.length - products.length,
+        duplicates: [...new Set(duplicates)],
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
