@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { ProductEntity } from '../product/entities/product.entity';
+import { ProductEntity } from '../product/product.entity';
 import { ProductStatus } from '@/enums/product-status.enum';
 import { CreateAcceptanceListDto } from '@/dto/acceptance-list.dto';
 
