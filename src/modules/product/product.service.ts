@@ -21,18 +21,35 @@ export class ProductService {
     if (!data || data.length === 0) {
       return { success: true, message: 'Массив данных пуст' };
     }
-    const productsToSave = data.map((item) => {
+    const seen = new Set<string>();
+    const fileDuplicates: string[] = [];
+    const productsToSave: ProductEntity[] = [];
+    for (const item of data) {
+      const customer_code = item.customer_code.trim().toUpperCase();
+      const product_code = item.product_code.trim().toUpperCase();
+      const key = `${customer_code}:${product_code}`;
+      if (seen.has(key)) {
+        fileDuplicates.push(key);
+        continue;
+      }
+      seen.add(key);
       const product = new ProductEntity();
-      product.product_code = item.product_code.trim().toUpperCase();
-      product.customer_code = item.customer_code.trim().toUpperCase();
+      product.product_code = product_code;
+      product.customer_code = customer_code;
       product.status = ProductStatus.IN_CHINA;
-      return product;
-    });
-    const savedProducts = await this.productRepository.save(productsToSave);
+      productsToSave.push(product);
+    }
+    if (productsToSave.length > 0) {
+      await this.productRepository.upsert(productsToSave, [
+        'product_code',
+        'customer_code',
+      ]);
+    }
 
     return {
       success: true,
-      message: `Успешно импортировано товаров: ${savedProducts.length}`,
+      message: `Успешно импортировано товаров: ${productsToSave.length}`,
+      duplicates: [...new Set(fileDuplicates)],
     };
   }
 
@@ -58,7 +75,10 @@ export class ProductService {
       }
       return product;
     });
-    await this.productRepository.save(productsToSave);
+    await this.productRepository.upsert(productsToSave, [
+      'product_code',
+      'customer_code',
+    ]);
     return {
       success: true,
       message: `Статус успешно обновлен для ${product_code.length} товаров.`,
@@ -90,7 +110,7 @@ export class ProductService {
     });
     if (anyProductExist) {
       throw new BadRequestException(
-        `Товары найдены, но они не готовы к выдаче. Текущий статус: ${anyProductExist.status}`,
+        `Товары найдены, но они не готовы к выдаче. Текущий статус: ${anyProductExist?.status}`,
       );
     }
     throw new NotFoundException(
