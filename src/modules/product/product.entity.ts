@@ -5,6 +5,7 @@ import {
   Column,
   CreateDateColumn,
   Index,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('products')
@@ -30,4 +31,6 @@ export class ProductEntity {
 
   @CreateDateColumn()
   createdAt!: Date;
+  @UpdateDateColumn()
+  updateAt!: Date;
 }
