@@ -5,7 +5,6 @@ import { ProductModule } from './modules/product/product.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getTypeOrmConfig } from './config/typeorm.config';
 import { ExcelModule } from './modules/excel/excel.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './modules/auth/auth.module';
@@ -23,7 +22,16 @@ import { UserModule } from './modules/user/user.module';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: getTypeOrmConfig,
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('database.host'),
+        port: configService.get<number>('database.port'),
+        username: configService.get<string>('database.username'),
+        password: configService.get<string>('database.password'),
+        database: configService.get<string>('database.database'),
+        autoLoadEntities: true,
+        synchronize: process.env.SYNCHRONIZE !== 'production',
+      }),
     }),
   ],
   controllers: [AppController],

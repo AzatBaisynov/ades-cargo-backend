@@ -9,12 +9,15 @@ import { ProductEntity } from './product.entity';
 import { ProductStatus } from '@/enums/product-status.enum';
 import { ImportDTO } from '@/dto/import.dto';
 import { UpdateStatusDto } from '@/dto/product-update.dto';
+import Decimal from 'decimal.js';
+import { PriceService } from './price/price.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepository: Repository<ProductEntity>,
+    private readonly priceService: PriceService,
   ) {}
 
   async saveAndChangeStatus(data: ImportDTO[]) {
@@ -54,34 +57,49 @@ export class ProductService {
   }
 
   async updateStatus(dto: UpdateStatusDto) {
-    const { product_code, status } = dto;
-    const findproducts = await this.productRepository.find({
+    const { product_code } = dto;
+
+    const findProducts = await this.productRepository.find({
       where: { id: In(product_code) },
     });
-    if (findproducts.length !== product_code.length) {
+
+    if (findProducts.length !== product_code.length) {
       throw new NotFoundException(
         'Один или несколько товаров не найдены в базе данных',
       );
     }
-    await this.productRepository.update(
-      { id: In(product_code) },
-      { status: status },
-    );
-    const productsToSave = findproducts.map((product) => {
-      product.status = status;
-      if (status === ProductStatus.ISSUED) {
-        // TODO:   const calculatedPrice = Number(product.weight) * Number(product.tariff);
-        // product. = calculatedPrice;
+
+    const currentPrice = await this.priceService.getCurrentPrice();
+    const productsToSave: ProductEntity[] = [];
+    const failed: { id: string; reason: string }[] = [];
+
+    for (const product of findProducts) {
+      if (!product.weight_Kg) {
+        failed.push({ id: product.id, reason: 'Вес не указан' });
+        continue;
       }
-      return product;
-    });
-    await this.productRepository.upsert(productsToSave, [
-      'product_code',
-      'customer_code',
-    ]);
+
+      const total = new Decimal(product.weight_Kg)
+        .mul(new Decimal(currentPrice.current_price))
+        .toDecimalPlaces(2)
+        .toNumber();
+
+      product.current_price = currentPrice.current_price;
+      product.total_price = total;
+      product.status = ProductStatus.ISSUED;
+      productsToSave.push(product);
+    }
+
+    const saved =
+      productsToSave.length > 0
+        ? await this.productRepository.save(productsToSave)
+        : [];
+
     return {
       success: true,
-      message: `Статус успешно обновлен для ${product_code.length} товаров.`,
+      issued: saved.length,
+      failed,
+      message: `Выдано: ${saved.length}, с ошибками: ${failed.length}`,
     };
   }
 
@@ -102,19 +120,36 @@ export class ProductService {
         createdAt: 'DESC',
       },
     });
-    if (products.length > 0) {
-      return products;
-    }
-    const anyProductExist = await this.productRepository.findOne({
-      where: [{ customer_code: cleanSearch }, { product_code: cleanSearch }],
-    });
-    if (anyProductExist) {
+    if (products.length === 0) {
+      const anyProductExist = await this.productRepository.findOne({
+        where: [{ customer_code: cleanSearch }, { product_code: cleanSearch }],
+      });
+      if (!anyProductExist) {
+        throw new NotFoundException(
+          `Товары с кодом "${cleanSearch}" не найден на складе.`,
+        );
+      }
+      if (anyProductExist?.status === ProductStatus.ISSUED) {
+        throw new BadRequestException('Товар уже выдан');
+      }
       throw new BadRequestException(
         `Товары найдены, но они не готовы к выдаче. Текущий статус: ${anyProductExist?.status}`,
       );
     }
-    throw new NotFoundException(
-      `Товары с кодом "${cleanSearch}" не найден на складе.`,
-    );
+    const currentPrice = await this.priceService.getCurrentPrice();
+
+    return products.map((product) => {
+      const estimated_total = product.weight_Kg
+        ? new Decimal(product.weight_Kg)
+            .mul(new Decimal(currentPrice.current_price))
+            .toDecimalPlaces(2)
+            .toNumber()
+        : null;
+      return {
+        ...product,
+        current_price: currentPrice.current_price,
+        estimated_total,
+      };
+    });
   }
 }
