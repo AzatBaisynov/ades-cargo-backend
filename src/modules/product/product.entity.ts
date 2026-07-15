@@ -26,11 +26,19 @@ export class ProductEntity {
     default: ProductStatus.PENDING,
   })
   status!: ProductStatus;
+
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   weight_Kg!: number | null;
 
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  current_price!: number;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  total_price!: number;
+
   @CreateDateColumn()
   createdAt!: Date;
+
   @UpdateDateColumn()
   updateAt!: Date;
 }
