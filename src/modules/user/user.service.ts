@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDTO } from '@/dto/user-create.dto';
+import { UpdateUserDTO } from '@/dto/user-update.dto';
 
 @Injectable()
 export class UserService {
@@ -19,12 +20,23 @@ export class UserService {
         user_password: true,
         user_email: true,
         fullname: true,
+        role: true,
       },
     });
   }
   public findUserByUseremail(user_email: string): Promise<UserEntity | null> {
-    return this.userRepository.findOne({ where: { user_email } });
-  }
+  return this.userRepository.findOne({
+    where: { user_email },
+    select: {
+      user_id: true,
+      user_name: true,
+      user_password: true,
+      user_email: true,
+      fullname: true,
+      role: true,
+    },
+  });
+}
   async create(dto: CreateUserDTO) {
     return await this.userRepository.save(dto);
   }
@@ -40,6 +52,24 @@ export class UserService {
         user_email: true,
         fullname: true,
       },
+      
     });
+    
   }
+  async findAll(): Promise<UserEntity[]> {
+    return this.userRepository.find({
+    select: {
+      user_id: true,
+      fullname: true,
+      user_name: true,
+      user_email: true,
+      role: true,
+    },
+  });
+}
+
+  async update(user_id: string, dto: Partial<UpdateUserDTO>) {
+    await this.userRepository.update(user_id, dto);
+    return this.findUserById(user_id);
+}
 }
