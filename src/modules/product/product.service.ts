@@ -138,18 +138,28 @@ export class ProductService {
     }
     const currentPrice = await this.priceService.getCurrentPrice();
 
-    return products.map((product) => {
-      const estimated_total = product.weight_Kg
+    let clientTotalPrice = new Decimal(0);
+
+    const productsWithPrice = products.map((product) => {
+      const total_price = product.weight_Kg
         ? new Decimal(product.weight_Kg)
             .mul(new Decimal(currentPrice.current_price))
             .toDecimalPlaces(2)
             .toNumber()
-        : null;
+        : 0;
+
+      clientTotalPrice = clientTotalPrice.plus(total_price);
+
       return {
         ...product,
         current_price: currentPrice.current_price,
-        estimated_total,
+        total_price,
       };
     });
+
+    return {
+      products: productsWithPrice,
+      client_total_price: clientTotalPrice.toDecimalPlaces(2).toNumber(),
+    };
   }
 }
