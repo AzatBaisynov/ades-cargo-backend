@@ -22,4 +22,6 @@ export class UserEntity {
   createdAt!: Date;
   @UpdateDateColumn()
   updateAt!: Date;
+  @Column({ default: 'user' })
+  role!: 'admin' | 'user';
 }
