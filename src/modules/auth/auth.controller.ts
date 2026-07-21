@@ -11,9 +11,11 @@ import { Roles } from './auth.roles';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+
+
  @Post('register')
- @UseGuards(JwtAuthGuard, RolesGuard)
- @Roles('admin')
+//  @UseGuards(JwtAuthGuard, RolesGuard)
+//  @Roles('admin')
 public registerUser(@Body() UserCreateDTO: CreateUserDTO) {
   return this.authService.register(UserCreateDTO);
 }

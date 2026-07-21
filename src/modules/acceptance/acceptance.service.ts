@@ -37,7 +37,9 @@ export class AcceptanceService {
       }[] = [];
       dto.items.forEach((item) => {
         const code = `${item.product_code}:${item.customer_code}`;
-        if (searchProductsSet.has(code)) {
+        if (searchProductsSet.has(code) && searchProducts.find(prod => {
+          return prod.status === ProductStatus.ARRIVED_BISHKEK || prod.status === ProductStatus.ISSUED
+        })) {
           duplicates.push(code);
           return;
         }
