@@ -47,22 +47,21 @@ export class AuthService {
   }
 
   public async login(userLoginDTO: UserLoginDTO) {
-  let existUser = await this.userService.findUserByUsername(
-    userLoginDTO.user_name,
-  );
-
-  if (!existUser) {
-    existUser = await this.userService.findUserByUseremail(
+    let existUser = await this.userService.findUserByUsername(
       userLoginDTO.user_name,
     );
-  }
+    if (!existUser) {
+      existUser = await this.userService.findUserByUseremail(
+        userLoginDTO.user_name,
+      );
+    }
 
-  if (!existUser) {
-    throw new HttpException(
-      { message: "Пользователь не существует" },
-      HttpStatus.BAD_REQUEST,
-    );
-  }
+    if (!existUser) {
+      throw new HttpException(
+        { message: 'Пользователь не существует' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     const isMatch = await bcrypt.compare(
       userLoginDTO.user_password,
@@ -77,10 +76,10 @@ export class AuthService {
     }
 
     const payload = {
-     id: existUser.user_id,
-     username: existUser.user_name,
-     role: existUser.role,
-};
+      id: existUser.user_id,
+      username: existUser.user_name,
+      role: existUser.role,
+    };
 
     const token = await this.jwtService.signAsync(payload);
     return {
